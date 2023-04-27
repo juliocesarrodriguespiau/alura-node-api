@@ -3,7 +3,9 @@ import livros from "../models/Livro.js";
 class LivroController {
 
     static listarLivros = (req, res) => {
-        livros.find().exec()
+        livros.find()
+        .populate('autor')
+        .exec()
         .then(livros => {
           res.status(200).json(livros)
         })
@@ -17,7 +19,10 @@ class LivroController {
         const id = req.params.id;
       
         try {
-          const livro = await livros.findById(id);
+          const livro = await livros.findById(id)
+          .populate('autor', 'nome')
+          .exec();
+          
           res.status(200).send(livro);
         } catch (err) {
           res.status(400).send({ message: `${err.message} - ID do Livro não localizado!` });
@@ -59,6 +64,19 @@ class LivroController {
         res.status(500).send({ message: err.message });
       });
     }
+
+    static listarLivroPorEditora = (req, res) => {
+      const editora = req.query.editora;
+    
+      livros.find({'editora': editora}).exec()
+        .then(livros => {
+          res.status(200).send(livros);
+        })
+        .catch(err => {
+          res.status(500).send({message: err.message})
+        })
+    }
+    
       
 }
 
